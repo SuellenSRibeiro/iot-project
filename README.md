@@ -38,6 +38,7 @@ Antes de executar o projeto, é necessário configurar algumas informações sen
 #define SECRET_EMAIL "seu_email"
 #define SECRET_EMAIL_PASSWORD "senha_do_email"
 #define SECRET_RECIPIENT_EMAIL "email_destinatario"
+```cpp
 
 Como Executar
 Siga as etapas abaixo para executar o projeto:
