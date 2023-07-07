@@ -2,6 +2,10 @@
 
 Este é um projeto fictício de um sistema IoT para monitoramento de temperatura e umidade usando um Arduino Uno WiFi e um sensor DHT11. O sistema realiza a leitura dos sensores, armazena os dados em um banco de dados MySQL na nuvem e envia alertas por e-mail quando a temperatura ultrapassa um limite crítico.
 
+O projeto em questão foi desenvolvido levando em consideração as diretrizes e requisitos da Norma ABNT NBR 7256:2021, que estabelece as condições de conforto térmico e ambiental para salas de atendimento de emergência.
+
+Para garantir a segurança e o conforto dos ocupantes desses ambientes críticos, os parâmetros de temperatura foram definidos de acordo com as especificações da norma. Conforme estabelecido, a faixa de temperatura foi configurada entre 20°C e 24°C, a fim de proporcionar um ambiente adequado para atendimentos emergenciais.
+
 ## Requisitos
 
 - Arduino Uno WiFi
