@@ -53,6 +53,5 @@ Selecione a placa "Arduino Uno WiFi" nas configurações do Arduino IDE.
 Compile e faça o upload do código para o Arduino.
 Abra o Monitor Serial para visualizar as leituras dos sensores e o envio de dados.
 Verifique se as leituras de temperatura e umidade estão sendo enviadas para o banco de dados corretamente.
-Se a temperatura ultrapassar o limite crítico definido (25°C por padrão), um e-mail de alerta será enviado para o destinatário especificado.
-Contribuição
-Este é um projeto fictício desenvolvido para fins de demonstração. Contribuições não são necessárias neste momento.
+
+Este é um projeto fictício desenvolvido para fins de demonstração. 
