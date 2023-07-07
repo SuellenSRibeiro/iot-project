@@ -10,7 +10,9 @@
 // ********* DEFINIÇÕES *********
 #define DHTPIN 2
 #define DHTTYPE DHT11
-#define TEMPERATURA_CRITICA 25.0
+#define TEMPERATURA_CRITICA 24.0
+#define TEMPERATURA_MINIMA 20.0
+#define UMIDADE_MAXIMA 60
 
 // ********* DECLARAÇÃO DE VARIÁVEIS GLOBAIS *********
 float temperatura = 0;
@@ -26,13 +28,16 @@ int status = WL_IDLE_STATUS;
 IPAddress server_addr(85, 10, 205, 173);
 char user[] = SECRET_PASSDB;
 
+char INSERT_SQL[] = "INSERT INTO bcitest.TemperaturaUmidade (TEMPERATURE, HUMIDITY) VALUES('%f', '%f')";
+char query[128];
+
 // ********* DECLARAÇÃO DE VARIÁVEIS PARA E-MAIL *********
 char emailServer[] = "smtp.gmail.com";
 int emailServerPort = 465;
-char senderEmail[] = "seuemail@gmail.com";
-char senderPassword[] = "suasenha";
-char recipientEmail[] = "destinatario@gmail.com";
-char emailSubject[] = "Alerta de Temperatura";
+char senderEmail[] = SECRET_EMAIL;
+char senderPassword[] = SECRET_EMAIL_PASSWORD;
+char recipientEmail[] = SECRET_RECIPIENT_EMAIL;
+char emailSubject[50];
 char emailBody[200];
 
 // ********* INSTANCIANDO OBJETOS *********
@@ -45,7 +50,7 @@ SMTP smtp;
 void conectaWifi();
 void enviaDados();
 void leituraSensores();
-void enviarEmail(float temp);
+void enviarEmail(float temp, float umid);
 
 // ********* INÍCIO DO SETUP *********
 void setup() {
@@ -76,24 +81,22 @@ void setup() {
 // ********* INICIO DO LOOP *********
 void loop() {
   if ((millis() - controleLeitura) > 5000) {
-    Serial.println("Realizando leitura de sensores...");
+    Serial.print("Realizando leitura dos sensores: ");
     leituraSensores();
-
-    Serial.print("Temperatura atual: ");
-    Serial.print(temperatura);
-    Serial.println("°C");
-
-    Serial.print("Umidade atual: ");
-    Serial.print(umidade);
-    Serial.println("%");
-
-    if (temperatura >= TEMPERATURA_CRITICA) {
-      enviarEmail(temperatura);
-    }
-
     controleLeitura = millis();
   }
-  delay(10);
+
+  if (temperatura > TEMPERATURA_CRITICA || temperatura < TEMPERATURA_MINIMA) {
+    Serial.println("Temperatura fora do intervalo crítico");
+    enviarEmail(temperatura, umidade);
+  }
+
+  if (umidade > UMIDADE_MAXIMA) {
+    Serial.println("Umidade acima do limite máximo");
+    enviarEmail(temperatura, umidade);
+  }
+
+  delay(1000);
 }
 // ********* FIM DO LOOP *********
 
@@ -128,30 +131,26 @@ void enviaDados() {
 void leituraSensores() {
   temperatura = dht.readTemperature();
   umidade = dht.readHumidity();
+  Serial.print("Temperatura: ");
+  Serial.println(temperatura);
+  Serial.print("Umidade: ");
+  Serial.println(umidade);
 }
 
-void enviarEmail(float temp) {
-  if (smtp.connect(emailServer, emailServerPort)) {
-    Serial.println("Conectado ao servidor de e-mail");
-    if (smtp.login(senderEmail, senderPassword)) {
-      Serial.println("Autenticação bem-sucedida");
-
-      sprintf(emailBody, "A temperatura atual é %.2f°C", temp);
-
-      if (smtp.send(senderEmail, recipientEmail, emailSubject, emailBody)) {
-        Serial.println("E-mail enviado com sucesso");
-      } else {
-        Serial.println("Falha ao enviar e-mail");
-      }
-      smtp.logout();
-    } else {
-      Serial.println("Falha na autenticação");
-    }
-    smtp.disconnect();
-  } else {
-    Serial.println("Falha na conexão com o servidor de e-mail");
+void enviarEmail(float temp, float umid) {
+  // Verifica se a temperatura está fora do intervalo crítico
+  if (temp > TEMPERATURA_CRITICA || temp < TEMPERATURA_MINIMA) {
+    snprintf(emailSubject, sizeof(emailSubject), "Alerta de Temperatura - %.2f°C", temp);
+    snprintf(emailBody, sizeof(emailBody), "A temperatura atual é de %.2f°C, que está fora do intervalo permitido (entre %.2f°C e %.2f°C).", temp, TEMPERATURA_MINIMA, TEMPERATURA_CRITICA);
   }
-}
+  // Verifica se a umidade está acima do limite máximo
+  else if (umid > UMIDADE_MAXIMA) {
+    snprintf(emailSubject, sizeof(emailSubject), "Alerta de Umidade - %.2f%%", umid);
+    snprintf(emailBody, sizeof(emailBody), "A umidade atual é de %.2f%%, que está acima do limite máximo permitido de %d%%.", umid, UMIDADE_MAXIMA);
+  }
 
+  Serial.println("Enviando e-mail de alerta");
+  smtp.sendEmail(emailServer, emailServerPort, senderEmail, senderPassword, recipientEmail, emailSubject, emailBody);
+}
 
 
