@@ -12,7 +12,7 @@ Para garantir a segurança e o conforto dos ocupantes desses ambientes críticos
 - Sensor DHT11
 - Acesso à internet
 - Conta em um serviço de e-mail (como o Gmail) para enviar notificações por e-mail
-- Servidor MySQL na nuvem (por exemplo, AWS RDS, Google Cloud SQL)
+- Servidor MySQL na nuvem
 
 # Sensor de Temperatura e Umidade IoT
 
